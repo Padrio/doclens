@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-IMAGE_NAME="${DOCLENS_IMAGE:-doclens:latest}"
+IMAGE_NAME="${DOCLENS_IMAGE:-ghcr.io/padrio/doclens:latest}"
 KB_DIR="${DOCLENS_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 
 cmd="${1:-help}"
@@ -25,10 +25,22 @@ shift || true
 cd "$KB_DIR"
 
 ensure_image() {
-    if ! docker image inspect "$IMAGE_NAME" >/dev/null 2>&1; then
-        echo "Image '$IMAGE_NAME' not found — building (one-time, ~5-15 min)..." >&2
-        docker build -t "$IMAGE_NAME" "$KB_DIR"
+    if docker image inspect "$IMAGE_NAME" >/dev/null 2>&1; then
+        return 0
     fi
+    echo "Image '$IMAGE_NAME' not found locally." >&2
+    # Prefer pulling from registry when the tag looks like a remote one
+    # (contains a slash or a registry host).
+    if [[ "$IMAGE_NAME" == *"/"* ]]; then
+        echo "Trying docker pull..." >&2
+        if docker pull "$IMAGE_NAME" 2>&1 | tail -3 >&2; then
+            return 0
+        fi
+        echo "Pull failed — falling back to local build (~5-15 min, one-time)..." >&2
+    else
+        echo "Building locally (~5-15 min, one-time)..." >&2
+    fi
+    docker build -t "$IMAGE_NAME" "$KB_DIR"
 }
 
 load_env_args() {

@@ -5,8 +5,9 @@
 > Convert any document corpus (specs, manuals, research papers, regulatory PDFs) into structured Markdown where **every diagram, screenshot, and table is searchable as text** — so LLMs and coding agents can navigate it like a codebase, not like a stack of opaque blobs.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Docker](https://img.shields.io/badge/runs%20in-docker-blue)](Dockerfile)
+[![Docker Image](https://img.shields.io/badge/ghcr.io-padrio%2Fdoclens-blue?logo=docker)](https://github.com/Padrio/doclens/pkgs/container/doclens)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue)](.python-version)
+[![Multi-arch](https://img.shields.io/badge/arch-amd64%20%7C%20arm64-green)](Dockerfile)
 
 ---
 
@@ -89,12 +90,23 @@ echo "ANTHROPIC_API_KEY=sk-ant-..." > .env
 # 2. Drop your PDFs in (any number, any names)
 cp ~/Downloads/*.pdf .
 
-# 3. Run the pipeline
-./scripts/doclens.sh build           # build container, ~5–15 min, one-time
+# 3. Run the pipeline (image is auto-pulled from ghcr.io on first run)
 ./scripts/doclens.sh all             # convert + describe + index
 ```
 
 That's it. Open `INDEX.md`, point your agent at it.
+
+The pre-built image (`ghcr.io/padrio/doclens:latest`, multi-arch amd64+arm64) is pulled automatically on first invocation — no local build needed. Pin a specific version with:
+
+```bash
+DOCLENS_IMAGE=ghcr.io/padrio/doclens:v0.1.0 ./scripts/doclens.sh all
+```
+
+If you want to build locally (e.g. you've modified the Dockerfile):
+
+```bash
+./scripts/doclens.sh build           # local build, ~5–15 min
+```
 
 ### Per-step commands
 
