@@ -28,9 +28,25 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 # venv outside /work — /work is overlaid by the host volume at runtime.
 ENV UV_PROJECT_ENVIRONMENT=/opt/venv
 
+# Force CPU-only torch wheels. Without this, transitive deps pull
+# nvidia-cuda-* (~2.7 GB) and triton (~640 MB) we never use.
+ENV UV_EXTRA_INDEX_URL=https://download.pytorch.org/whl/cpu
+ENV UV_INDEX_STRATEGY=unsafe-best-match
+
 WORKDIR /opt/build
+RUN uv venv /opt/venv
+
+# Install torch+torchvision CPU-only first so transitive resolution
+# from docling can't escalate them to the CUDA flavor.
+RUN uv pip install --python /opt/venv/bin/python \
+        --index-url https://download.pytorch.org/whl/cpu \
+        torch torchvision
+
 COPY pyproject.toml ./
 RUN uv sync --no-install-project
+
+# Strip __pycache__ to shave a few hundred MB.
+RUN find /opt/venv -type d -name __pycache__ -prune -exec rm -rf {} +
 
 ENV PATH="/opt/venv/bin:${PATH}"
 ENV PYTHONUNBUFFERED=1
