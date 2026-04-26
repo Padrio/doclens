@@ -1,0 +1,17 @@
+# Generated / runtime
+.env
+.venv/
+__pycache__/
+*.pyc
+convert.log
+.cache/
+.DS_Store
+
+# User input — these belong to per-project KBs, not to the doclens
+# template repo itself. Anchored to root so examples/*.json works.
+/*.pdf
+/docs/
+/INDEX.md
+/slugs.json
+/feature-map.json
+/system-prompt.txt

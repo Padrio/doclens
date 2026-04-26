@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+docs/
+.cache/
+.env
+convert.log
+*.pdf
+.git/
+.github/
+examples/

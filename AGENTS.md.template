@@ -1,0 +1,24 @@
+# Agents — how to navigate this knowledge base
+
+This file mirrors `CLAUDE.md` for agent runtimes that prefer `AGENTS.md`. Both contain the same rules; whichever your agent reads first wins.
+
+See [`CLAUDE.md`](CLAUDE.md) for the full ruleset.
+
+## Quick reference
+
+```
+INDEX.md              ←  start here, every session
+docs/<slug>/TOC.md    ←  outline of one document
+docs/<slug>/document.md ←  full Markdown, read SLICES only
+docs/<slug>/assets/   ←  raw images (don't read; description below them)
+docs/<slug>/descriptions.json  ←  cached structured image descriptions
+
+./scripts/search.sh "term" [slug]
+./scripts/search_sections.sh "term"
+./scripts/doclens.sh report     # coverage of image descriptions
+```
+
+## One-liner workflow
+
+> User asks a factual question grounded in the source PDFs?
+> → `Read INDEX.md` → identify slug(s) → `Read docs/<slug>/TOC.md` → grep with line offset → `Read document.md offset=<L> limit=200`.

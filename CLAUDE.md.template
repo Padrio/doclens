@@ -1,0 +1,70 @@
+# Working with this knowledge base
+
+This directory contains a [doclens](https://github.com/Padrio/doclens)-built knowledge base. Future AI sessions in this project should treat the indexed Markdown as the **primary source** for any factual question that involves the source PDFs.
+
+## The rule
+
+Always navigate in this order:
+
+1. **`INDEX.md`** — global table, abstracts, top-level sections, optional feature-map.
+2. **`docs/<slug>/TOC.md`** — full header outline with line anchors.
+3. **`./scripts/search.sh "term" [slug]`** — ripgrep across all Markdown, including HTML-comment image descriptions.
+4. **`./scripts/search_sections.sh "term"`** — same, but groups hits by nearest header for fast orientation.
+5. **`docs/<slug>/document.md`** — read **only** the relevant slice (`Read` with `offset`+`limit` based on TOC line numbers).
+6. **The original PDFs** are last resort, only if Markdown is incomplete.
+
+## Anti-patterns (do NOT do)
+
+- ❌ `Read` on `*.pdf` directly without searching the KB first.
+- ❌ Reading whole `document.md` files — they're 50–500 KB. Use TOC + offset.
+- ❌ Grepping the source PDFs (loses image content, tables get mangled).
+- ❌ Answering from training-data memory when the KB has authoritative content.
+
+## Image content is grep-able
+
+Each image in `document.md` is followed by an HTML comment with a structured description:
+
+```markdown
+![Figure 1](assets/image_0042.png)
+<!-- DOCLENS_DESC_SHA=a1b2c3... -->
+<!-- DOCLENS_DESC
+Type: Sequence diagram
+Summary: SAML SSO flow between Principal, SP and IdP.
+Structured:
+Actors: Principal, Service Provider, Identity Provider
+1) Principal → SP: GET /resource
+2) SP → Principal: redirect to IdP with SAMLRequest
+...
+Uncertainties: Binding mechanism for step 3 not explicitly drawn.
+-->
+```
+
+Useful greps:
+
+```bash
+./scripts/search.sh "SAML"               # finds text + descriptions
+rg "DOCLENS_DESC" docs/                  # list all image descriptions
+rg -B1 -A1 "Actors:" docs/               # find sequence diagrams with actor lists
+```
+
+## When information is missing
+
+1. **Look at the original image:** `open docs/<slug>/assets/image_NNNN.png`
+2. **Check the source PDF page** (`meta.json` has `source_pdf` + `page_count`).
+3. **Re-describe the image:** delete the SHA from `descriptions.json`, then `./scripts/doclens.sh describe --slug <slug>`.
+
+## Adding new source documents
+
+```bash
+cp NEW_DOC.pdf .
+./scripts/doclens.sh all      # convert + describe + index
+```
+
+The slug is auto-derived from the filename. Override in `slugs.json` if needed.
+
+## Token economy
+
+- `INDEX.md`: ~10 KB — read once per session.
+- `TOC.md`: ~2–8 KB per document — on demand.
+- `document.md`: 50–500 KB — **always slice** with `offset`+`limit`.
+- `assets/*.png`: never read directly — the description below the image has the content.

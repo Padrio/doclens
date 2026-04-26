@@ -1,0 +1,5 @@
+{
+  "_order": ["auth-spec", "api-spec", "data-model", "deployment-guide", "user-handbook"],
+  "Confusing_Filename_v1.2.3.pdf": "auth-spec",
+  "OTHER FILE WITH SPACES.pdf": "deployment-guide"
+}

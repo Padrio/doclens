@@ -1,0 +1,28 @@
+[project]
+name = "doclens"
+version = "0.1.0"
+description = "Index image-heavy PDFs into greppable Markdown for LLM agents"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "docling>=2.0",
+    "anthropic>=0.40",
+    "tqdm>=4.66",
+    "python-dotenv>=1.0",
+    "pillow>=10",
+]
+
+[tool.uv]
+package = false
+
+# Pipeline runs in Linux x86_64 / arm64 Docker containers — no need
+# for macOS-Intel-specific torch overrides. If you run natively, expect
+# torch wheel issues on older Macs (use Docker instead).
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+torchvision = [{ index = "pytorch-cpu" }]

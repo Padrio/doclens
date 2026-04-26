@@ -1,0 +1,6 @@
+[
+  {"feature": "Authentication flow",  "primary": "auth-spec",        "secondary": "deployment-guide"},
+  {"feature": "Database schema",       "primary": "data-model",       "secondary": "—"},
+  {"feature": "Error handling",        "primary": "api-spec",         "secondary": "deployment-guide"},
+  {"feature": "Onboarding (end-user)", "primary": "user-handbook",    "secondary": "—"}
+]
